@@ -1,38 +1,914 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Da Nang Family Escape</title>
-  <meta name="theme-color" content="#14b8a6">
-  <link rel="manifest" href="manifest.webmanifest">
-  <link rel="icon" href="icon-192.png">
-  <link rel="apple-touch-icon" href="icon-192.png">
-  <style>
-    body{margin:0;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-         background:#14b8a6;color:#fff;font-family:system-ui,sans-serif;text-align:center}
-    img{width:96px;height:96px;border-radius:22px;margin-bottom:16px}
-    a{color:#fff;font-weight:600}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Da Nang Family Escape</title>
+    <meta name="theme-color" content="#14b8a6">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        tropical: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            200: '#99f6e4',
+                            300: '#5eead4',
+                            400: '#2dd4bf',
+                            500: '#14b8a6', // Main theme color
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        lantern: {
+                            red: '#ef4444',
+                            yellow: '#f59e0b'
+                        },
+                        sand: '#fcfbf9'
+                    },
+                    fontFamily: {
+                        sans: ['"Inter"', 'system-ui', '-apple-system', 'sans-serif'],
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #334155;
+            scroll-behavior: smooth;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+        }
+
+        .bg-ocean {
+            background-image: linear-gradient(to bottom, rgba(248,250,252,0.8), rgba(248,250,252,1)), url('https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=2978&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center center;
+            background-attachment: fixed;
+        }
+        
+        .table-row-hover:hover {
+            background-color: #f0fdfa;
+        }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #1e293b;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 12px;
+            position: fixed;
+            z-index: 50;
+            left: 50%;
+            bottom: 30px;
+            font-size: 15px;
+            opacity: 0;
+            transition: opacity 0.3s, visibility 0.3s, bottom 0.3s;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #14b8a6;
+            width: 20px;
+            height: 20px;
+            -webkit-animation: spin 1s linear infinite;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .timeline-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #14b8a6;
+            position: absolute;
+            left: -6px;
+            top: 6px;
+            border: 2px solid white;
+        }
+        .timeline-line {
+            border-left: 2px solid #e2e8f0;
+            padding-left: 20px;
+            position: relative;
+        }
+    </style>
 </head>
-<body>
-  <img src="icon-192.png" alt="">
-  <h2>Da Nang Family Escape</h2>
-  <p>Opening your trip app…</p>
-  <p><a id="manual" href="#">Tap here if it doesn't open</a></p>
+<body class="antialiased min-h-screen flex flex-col font-sans">
 
-  <script>
-    // >>> Replace with YOUR Apps Script web app URL (the one ending in /exec) <<<
-    const APP_URL = 'https://script.google.com/macros/s/AKfycbwaezJrfaIHUmNkAuAIX_44pV23wW5AyeVlHtlzkC4S2pParYSQxYMLMzURQrK8tY9f/exec';
+    <nav class="bg-white border-b border-gray-200 sticky top-0 z-40 bg-opacity-90 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <i class="fa-solid fa-umbrella-beach text-tropical-500 text-2xl mr-3"></i>
+                    <span class="font-bold text-xl text-gray-800 font-serif tracking-wide">Da Nang Family Escape</span>
+                </div>
+                <div class="hidden md:flex items-center space-x-6">
+                    <a href="#overview" class="text-gray-600 hover:text-tropical-600 transition-colors font-medium">Overview</a>
+                    <a href="#itinerary" class="text-gray-600 hover:text-tropical-600 transition-colors font-medium">Itinerary</a>
+                    <a href="#souvenirs" class="text-gray-600 hover:text-tropical-600 transition-colors font-medium">Souvenirs</a>
+                    <a href="#expenses" class="text-tropical-600 font-bold hover:text-tropical-700 transition-colors bg-tropical-50 px-3 py-1.5 rounded-full"><i class="fa-solid fa-wallet mr-1"></i>Wallet</a>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="flex items-center md:hidden">
+                    <button type="button" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')" class="text-gray-600 hover:text-gray-900 focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-b border-gray-200 shadow-md absolute w-full">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#overview" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-tropical-600 hover:bg-gray-50" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Overview</a>
+                <a href="#itinerary" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-tropical-600 hover:bg-gray-50" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Itinerary</a>
+                <a href="#souvenirs" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-tropical-600 hover:bg-gray-50" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Souvenirs</a>
+                <a href="#expenses" class="block px-3 py-2 rounded-md text-base font-bold text-tropical-600 bg-tropical-50" onclick="document.getElementById('mobile-menu').classList.add('hidden')">Wallet</a>
+            </div>
+        </div>
+    </nav>
 
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    <header class="bg-ocean py-12 lg:py-16 text-center relative border-b border-gray-200">
+        <div class="relative z-10 max-w-4xl mx-auto px-4">
+            <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-serif">DA NANG</h1>
+            <p class="text-xl md:text-2xl text-tropical-700 mb-4 tracking-wide font-medium">Relaxed Pace · Scenic Views · Culture</p>
+            <div class="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full text-sm font-medium text-gray-700 shadow-sm border border-gray-200">
+                <i class="fa-regular fa-calendar text-tropical-600"></i>
+                <span>8 – 11 February 2027</span>
+                <span class="text-gray-400">|</span>
+                <i class="fa-solid fa-users text-tropical-600"></i>
+                <span>3 Travellers</span>
+            </div>
+        </div>
+    </header>
 
-    document.getElementById('manual').href = APP_URL;
-    if (APP_URL.indexOf('https://script.google.com/') === 0) {
-      setTimeout(() => location.replace(APP_URL), 400);
-    } else {
-      document.querySelector('p').textContent = 'APP_URL is not set yet. Edit index.html and paste your /exec link.';
-    }
-  </script>
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        
+        <section id="infographic" class="fade-in">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center font-serif flex items-center justify-center">
+                <i class="fa-solid fa-map-location-dot text-tropical-500 mr-3"></i> Trip Overview
+            </h2>
+            <div class="card-shadow p-2 bg-white flex justify-center border-t-4 border-t-tropical-500">
+                <img src="danang.jpg" alt="Da Nang Trip Infographic" class="w-full max-w-4xl h-auto object-contain rounded">
+            </div>
+        </section>
+
+        <section id="overview" class="bg-white p-6 md:p-8 card-shadow">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 font-serif border-b border-gray-100 pb-3 flex items-center">
+                <i class="fa-solid fa-circle-info text-tropical-500 mr-3"></i> Travel Details
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- Basic Info -->
+                <div class="space-y-4">
+                    <div class="flex items-start bg-gray-50 p-3 rounded-lg border border-gray-100">
+                        <i class="fa-solid fa-heart text-lantern-red mt-1 w-8 text-center text-lg"></i>
+                        <div>
+                            <span class="font-bold text-gray-800 block mb-1">Travel Principle</span>
+                            <span class="text-gray-600 text-sm leading-relaxed">Relaxed pace for parents. Less backtracking, one main destination per day. Afternoon cafe breaks included. No late nights.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fa-solid fa-car text-tropical-500 mt-1 w-8 text-center text-lg"></i>
+                        <div>
+                            <span class="font-bold text-gray-800 block">Transport</span>
+                            <span class="text-gray-600 text-sm">Private car for day trips + Grab in the city.</span>
+                        </div>
+                    </div>
+                    <div class="flex items-start">
+                        <i class="fa-solid fa-utensils text-tropical-500 mt-1 w-8 text-center text-lg"></i>
+                        <div>
+                            <span class="font-bold text-gray-800 block">Food Preference</span>
+                            <span class="text-gray-600 text-sm">No beef. Less spicy. Comfortable family dining environments.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flights Table -->
+                <div class="overflow-x-auto">
+                    <h3 class="text-lg font-bold text-gray-800 mb-3 flex items-center"><i class="fa-solid fa-plane-departure mr-2 text-tropical-500"></i>Flights</h3>
+                    <table class="min-w-full text-sm text-left text-gray-600 border border-gray-200 rounded-lg overflow-hidden">
+                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-200">
+                            <tr>
+                                <th scope="col" class="px-4 py-3">Route</th>
+                                <th scope="col" class="px-4 py-3">Flight</th>
+                                <th scope="col" class="px-4 py-3">Date</th>
+                                <th scope="col" class="px-4 py-3">Time</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-200">
+                            <tr class="bg-white table-row-hover">
+                                <td class="px-4 py-3 font-medium text-gray-800">SIN <i class="fa-solid fa-arrow-right mx-1 text-gray-400"></i> DAD</td>
+                                <td class="px-4 py-3 text-tropical-700 font-medium">SQ174</td>
+                                <td class="px-4 py-3">8 Feb 2027</td>
+                                <td class="px-4 py-3">13:55 <i class="fa-solid fa-arrow-right mx-1 text-gray-400 text-xs"></i> 15:40</td>
+                            </tr>
+                            <tr class="bg-white table-row-hover">
+                                <td class="px-4 py-3 font-medium text-gray-800">DAD <i class="fa-solid fa-arrow-right mx-1 text-gray-400"></i> SIN</td>
+                                <td class="px-4 py-3 text-tropical-700 font-medium">SQ173</td>
+                                <td class="px-4 py-3">11 Feb 2027</td>
+                                <td class="px-4 py-3">16:30 <i class="fa-solid fa-arrow-right mx-1 text-gray-400 text-xs"></i> 20:45</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Accommodation -->
+            <div class="mt-8 border border-gray-200 rounded-lg overflow-hidden">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <h3 class="text-lg font-bold text-gray-800 flex items-center"><i class="fa-solid fa-hotel mr-2 text-tropical-500"></i>Accommodation (3 Nights)</h3>
+                </div>
+                <div class="p-4 flex flex-col md:flex-row justify-between items-start md:items-center bg-white">
+                    <div>
+                        <h4 class="font-bold text-xl text-gray-900 mb-1">Rosamia Da Nang Hotel</h4>
+                        <p class="text-sm text-gray-500"><i class="fa-solid fa-location-dot mr-1"></i>282 Vo Nguyen Giap Street, My An Ward, Ngu Hanh Son District</p>
+                    </div>
+                    <div class="mt-3 md:mt-0 text-left md:text-right">
+                        <span class="inline-block bg-tropical-100 text-tropical-800 px-3 py-1 rounded-full text-sm font-medium">8 Feb - 11 Feb</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="itinerary" class="space-y-6">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900 font-serif inline-block relative">
+                    Daily Itinerary
+                    <div class="absolute bottom-0 left-0 w-full h-1 bg-tropical-500 transform translate-y-2"></div>
+                </h2>
+            </div>
+
+            <!-- Day 1 -->
+            <div class="bg-white p-6 card-shadow border-l-4 border-l-tropical-500 relative">
+                <div class="absolute top-0 right-0 bg-tropical-50 text-tropical-700 font-bold px-4 py-1 rounded-bl-lg border-b border-l border-tropical-100">DAY 01</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1">8 Feb · Arrival & Seafood Evening</h3>
+                <p class="text-tropical-600 text-sm font-medium mb-6">✈️ Arrival → 🏨 Relax → 🦐 Seafood → 💆 Massage → 🌙 Rest</p>
+
+                <div class="space-y-4 text-sm text-gray-700">
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">15:40 - Arrival in Da Nang</div>
+                        <p>Immigration & Baggage. Meet driver. Transfer to Rosamia Hotel (Tour Agent Transfer: ~3M VND).</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">17:15 - Check-in & Rest</div>
+                        <p>Rest at the hotel. No activities planned to let parents recover from the journey.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot text-lantern-red border-lantern-red" style="background-color: white;"></div>
+                        <div class="font-bold text-gray-900 mb-1">19:00 - Seafood Dinner</div>
+                        <p class="font-medium text-gray-800">📍 Ăn Thôi Hải Sản (290 Võ Nguyên Giáp)</p>
+                        <p class="text-gray-500 italic mt-1">Recommendations: Prawns, Shellfish, Steamed Fish, Grilled Squid, Vegetables, Rice. (No beef, less spicy).</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">20:30 - Massage & Nail</div>
+                        <p>📍 Chang Massage & Nail. Perfect for post-flight relaxation. Return to hotel by 22:00.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 2 -->
+            <div class="bg-white p-6 card-shadow border-l-4 border-l-tropical-500 relative">
+                <div class="absolute top-0 right-0 bg-tropical-50 text-tropical-700 font-bold px-4 py-1 rounded-bl-lg border-b border-l border-tropical-100">DAY 02</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1">9 Feb · Ba Na Hills & City Highlights</h3>
+                <p class="text-tropical-600 text-sm font-medium mb-6">🏔️ Mountain → 🌉 Golden Bridge → 💗 City → 🛍️ Shopping → 🍕 Dinner</p>
+                
+                <div class="bg-amber-50 border border-amber-200 rounded p-3 mb-6 text-sm text-amber-800 flex items-start">
+                    <i class="fa-solid fa-triangle-exclamation mt-1 mr-2 text-amber-600"></i>
+                    <p><span class="font-bold">Logistics Tip:</span> Do not return to the hotel after Ba Na Hills. Head straight to the city to avoid unnecessary backtracking.</p>
+                </div>
+
+                <div class="space-y-4 text-sm text-gray-700">
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">07:00 - Depart for Ba Na Hills</div>
+                        <p>Leave directly after hotel breakfast.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">08:30 - 15:30 - Ba Na Hills</div>
+                        <p>Prioritize comfort. Focus on: Golden Bridge, Cable Car, French Village architecture, and viewpoints. Don't rush to see everything.</p>
+                        <p class="mt-1 text-gray-500">🍽️ Lunch: Four Seasons / French Village Buffet.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">17:00 - Da Nang Pink Cathedral</div>
+                        <p>Brief photo stop (20-30 mins max).</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">17:30 - Han Market Area</div>
+                        <p>Relaxed shopping. If parents get tired, find a nearby cafe for them to rest.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot text-lantern-red border-lantern-red" style="background-color: white;"></div>
+                        <div class="font-bold text-gray-900 mb-1">19:00 - Dinner at Pizza 4P's</div>
+                        <p class="text-gray-500 italic">Advanced booking recommended. Perfect for sharing: 2 pizzas, salad, pasta, dessert.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">20:15 - Evening Walk (Optional)</div>
+                        <p>Han River walk / Dragon Bridge view. <strong>Skip and head to hotel if parents are tired.</strong> Return by 21:00.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 3 -->
+            <div class="bg-white p-6 card-shadow border-l-4 border-l-tropical-500 relative">
+                <div class="absolute top-0 right-0 bg-tropical-50 text-tropical-700 font-bold px-4 py-1 rounded-bl-lg border-b border-l border-tropical-100">DAY 03</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1">10 Feb · Son Tra to Hoi An</h3>
+                <p class="text-tropical-600 text-sm font-medium mb-6">🛕 Peace → 🌊 Ocean → 🏮 Ancient Town → ☕ Relax → 🍽️ Vietnamese Dinner</p>
+
+                <div class="space-y-4 text-sm text-gray-700">
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">08:00 - Depart Hotel</div>
+                        <p>Head to Son Tra Peninsula. Morning weather is usually pleasant.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">08:30 - Linh Ung Pagoda & Son Tra</div>
+                        <p>See the Lady Buddha and ocean views. Brief stop at Son Tra Viewpoint for photos.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">10:00 - Travel to Hoi An</div>
+                        <p>Approx 1-hour drive.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot text-lantern-red border-lantern-red" style="background-color: white;"></div>
+                        <div class="font-bold text-gray-900 mb-1">11:15 - Vietnamese Lunch</div>
+                        <p>📍 Cơm Linh or similar local restaurant. Focus on chicken, fish, vegetables, and rice/noodles.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">12:30 - Hoi An Ancient Town</div>
+                        <p>Walk slowly. Old Streets, Lantern Shops, Japanese Covered Bridge. Don't chase every spot.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot text-tropical-500 border-tropical-500" style="background-color: white;"></div>
+                        <div class="font-bold text-gray-900 mb-1">15:00 - Coffee & Rest Time</div>
+                        <p>Dedicated rest time for parents in a comfortable, air-conditioned cafe with Vietnamese Coffee and desserts.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot text-lantern-red border-lantern-red" style="background-color: white;"></div>
+                        <div class="font-bold text-gray-900 mb-1">17:30 - Highly Recommended Dinner</div>
+                        <p class="font-medium text-gray-800">📍 HOME Hoi An</p>
+                        <p class="text-gray-500 italic mt-1">Comfortable environment suitable for parents. Try: Spring Rolls, Bánh Xèo, local fish, chicken.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot"></div>
+                        <div class="font-bold text-gray-900 mb-1">19:00 - Lantern Evening</div>
+                        <p>Brief stroll along the lantern streets and riverside for family photos. Leave for Da Nang at 20:00 to rest early.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Day 4 -->
+            <div class="bg-white p-6 card-shadow border-l-4 border-l-gray-400 relative">
+                <div class="absolute top-0 right-0 bg-gray-100 text-gray-600 font-bold px-4 py-1 rounded-bl-lg border-b border-l border-gray-200">DAY 04</div>
+                <h3 class="text-xl font-bold text-gray-900 mb-1">11 Feb · Slow Morning & Departure</h3>
+                <p class="text-gray-600 text-sm font-medium mb-6">🌊 Beach → ☕ Slow Morning → 🛍️ Last Shopping → ✈️ Home</p>
+
+                <div class="space-y-4 text-sm text-gray-700">
+                    <div class="timeline-line">
+                        <div class="timeline-dot border-gray-400" style="background-color: #9ca3af;"></div>
+                        <div class="font-bold text-gray-900 mb-1">08:00 - Hotel Breakfast & Beach</div>
+                        <p>Leisurely breakfast. Stroll along My Khe Beach, enjoy the sea breeze without rushing.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot border-gray-400" style="background-color: #9ca3af;"></div>
+                        <div class="font-bold text-gray-900 mb-1">10:30 - Last-minute Shopping</div>
+                        <p>Pick up remaining coffee, souvenirs, or snacks.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot text-lantern-red border-lantern-red" style="background-color: white;"></div>
+                        <div class="font-bold text-gray-900 mb-1">12:45 - Light Lunch</div>
+                        <p>📍 Bread & Butter. Keep it light before the flight.</p>
+                    </div>
+                    <div class="timeline-line">
+                        <div class="timeline-dot border-gray-400" style="background-color: #9ca3af;"></div>
+                        <div class="font-bold text-gray-900 mb-1">13:30 - Transfer to Airport</div>
+                        <p>Check out and head to Da Nang Airport early for a stress-free check-in for SQ173.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="souvenirs" class="bg-white p-6 md:p-8 card-shadow">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6 font-serif border-b border-gray-100 pb-3 flex items-center">
+                <i class="fa-solid fa-gift mr-3 text-tropical-500"></i> Souvenir Guide
+            </h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
+                    <h3 class="font-bold text-gray-900 text-lg mb-4 flex items-center">
+                        <i class="fa-solid fa-store mr-2 text-gray-500"></i> Han Market (Food Focus)
+                    </h3>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li class="flex items-start"><i class="fa-solid fa-mug-hot mt-1 mr-3 text-tropical-600"></i> <div><span class="font-bold">Vietnamese Coffee</span> - Local blends and drip filters.</div></li>
+                        <li class="flex items-start"><i class="fa-solid fa-seedling mt-1 mr-3 text-tropical-600"></i> <div><span class="font-bold">Cashew Nuts</span> - High quality and fresh.</div></li>
+                        <li class="flex items-start"><i class="fa-solid fa-lemon mt-1 mr-3 text-tropical-600"></i> <div><span class="font-bold">Dried Mango & Fruits</span> - Great for sharing.</div></li>
+                        <li class="flex items-start"><i class="fa-solid fa-cookie mt-1 mr-3 text-tropical-600"></i> <div><span class="font-bold">Coconut Snacks</span> - Crackers and candies.</div></li>
+                        <li class="flex items-start"><i class="fa-solid fa-cubes-stacked mt-1 mr-3 text-tropical-600"></i> <div><span class="font-bold">Local Chocolate</span> - Marou or similar brands.</div></li>
+                    </ul>
+                </div>
+
+                <div class="bg-gray-50 p-5 rounded-lg border border-gray-100">
+                    <h3 class="font-bold text-gray-900 text-lg mb-4 flex items-center">
+                        <i class="fa-brands fa-pagelines mr-2 text-lantern-red"></i> Hoi An (Traditional)
+                    </h3>
+                    <ul class="space-y-3 text-sm text-gray-700">
+                        <li class="flex items-start"><i class="fa-solid fa-lightbulb mt-1 mr-3 text-lantern-yellow"></i> <div><span class="font-bold">Silk Lanterns</span> - Hand-painted, fold flat for travel.</div></li>
+                        <li class="flex items-start"><i class="fa-brands fa-pagelines mt-1 mr-3 text-tropical-600"></i> <div><span class="font-bold">Bamboo Crafts</span> - Bowls, coasters, decorative items.</div></li>
+                        <li class="flex items-start"><i class="fa-solid fa-shirt mt-1 mr-3 text-tropical-600"></i> <div><span class="font-bold">Handmade Products</span> - Embroidered bags, clothing.</div></li>
+                        <li class="flex items-start"><i class="fa-solid fa-palette mt-1 mr-3 text-tropical-600"></i> <div><span class="font-bold">Local Handicrafts</span> - Pottery from Thanh Ha village.</div></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="expenses" class="bg-white p-6 md:p-8 card-shadow border-t-4 border-t-tropical-500">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 class="text-2xl font-bold text-gray-800 font-serif flex items-center">
+                    <i class="fa-solid fa-wallet mr-3 text-tropical-500"></i> Family Trip Wallet
+                </h2>
+                <div class="flex items-center space-x-3 w-full sm:w-auto">
+                    <button id="sync-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm py-1.5 px-3 rounded transition-colors flex items-center border border-gray-300">
+                        <i class="fa-solid fa-rotate mr-2" id="sync-icon"></i>Sync Sheet
+                    </button>
+                    <button id="cfg-btn" type="button" title="Connection settings" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm py-1.5 px-3 rounded transition-colors border border-gray-300"><i class="fa-solid fa-gear"></i></button>
+                    <div id="auth-status" class="text-xs font-medium bg-gray-50 px-2 py-1 rounded border border-gray-200 flex items-center w-full sm:w-auto justify-center sm:justify-start">
+                        <span class="loader hidden mr-2 w-3 h-3 border-2" id="auth-loader"></span>
+                        <span id="auth-text" class="text-gray-500">Connecting...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-6 bg-blue-50 border border-blue-100 p-3 rounded-lg flex items-start">
+                <i class="fa-solid fa-circle-info text-blue-500 mt-0.5 mr-2"></i>
+                Track your spending here. Every record is written straight into your Google Sheet (SGD and VND go into separate columns). Expected budget: 9-11M VND (~440-540 SGD).
+            </p>
+
+            <div id="key-panel" class="hidden max-w-md mx-auto bg-gray-50 border border-gray-200 rounded-xl p-6">
+                <div class="text-center mb-4">
+                    <i class="fa-solid fa-plug text-3xl text-tropical-500 mb-2"></i>
+                    <p class="font-bold text-gray-800">Connect to your Google Sheet</p>
+                    <p class="text-xs text-gray-500">Saved on this device only.</p>
+                </div>
+                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Apps Script URL (ends with /exec)</label>
+                <input id="cfg-url" type="url" placeholder="https://script.google.com/macros/s/.../exec" class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm bg-white mb-3">
+                <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">API key</label>
+                <input id="cfg-key" type="password" placeholder="Your API_KEY from Code.gs" class="w-full border border-gray-300 rounded-md py-2 px-3 text-sm bg-white mb-3">
+                <button type="button" id="cfg-save" class="w-full bg-tropical-600 hover:bg-tropical-700 text-white font-medium py-2 px-4 rounded-md text-sm">Save & connect</button>
+                <p id="cfg-msg" class="text-xs text-red-600 mt-2 min-h-[1rem]"></p>
+            </div>
+
+            <div id="wallet-body" class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Add Expense Form -->
+                <div class="lg:col-span-1 bg-gray-50 p-5 rounded-xl border border-gray-200">
+                    <h3 class="font-bold text-gray-800 mb-4 pb-2 border-b border-gray-200">New Transaction</h3>
+                    <form id="expense-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Phase</label>
+                            <select id="exp-phase" class="w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:ring-tropical-500 focus:border-tropical-500 bg-white" required>
+                                <option value="Pre-trip">Pre-trip</option>
+                                <option value="Day 1">Day 1 (Arrival & Seafood)</option>
+                                <option value="Day 2">Day 2 (Ba Na Hills)</option>
+                                <option value="Day 3">Day 3 (Son Tra & Hoi An)</option>
+                                <option value="Day 4">Day 4 (Departure)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Category</label>
+                            <select id="exp-category" class="w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:ring-tropical-500 focus:border-tropical-500 bg-white" required>
+                                <option value="Food & Dining">Food & Dining</option>
+                                <option value="Hotel">Hotel</option>
+                                <option value="Transport">Transport (Grab/Car)</option>
+                                <option value="Shopping">Shopping & Souvenirs</option>
+                                <option value="Activities">Activities / Massage</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Description</label>
+                            <input type="text" id="exp-desc" placeholder="e.g. Seafood Dinner" class="w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:ring-tropical-500 focus:border-tropical-500 bg-white" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Payment method</label>
+                            <select id="exp-payment" class="w-full border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:ring-tropical-500 focus:border-tropical-500 bg-white">
+                                <option value="Cash">Cash</option>
+                                <option value="UOB Credit Card">UOB Credit Card</option>
+                                <option value="UOB Debit Card">UOB Debit Card</option>
+                                <option value="Other Bank Card">Other Bank Card</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Currency & Amount</label>
+                            <div class="flex space-x-2">
+                                <select id="exp-currency" class="w-2/5 border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:ring-tropical-500 focus:border-tropical-500 bg-white">
+                                    <option value="VND">VND (₫)</option>
+                                    <option value="SGD">SGD (S$)</option>
+                                </select>
+                                <input type="number" id="exp-amount" step="0.01" min="0" placeholder="0.00" class="w-3/5 border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:ring-tropical-500 focus:border-tropical-500 bg-white" required>
+                            </div>
+                        </div>
+                        <button type="submit" id="submit-exp-btn" class="w-full bg-tropical-600 hover:bg-tropical-700 text-white font-medium py-2 px-4 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm mt-2">
+                            Add Record
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Expense List -->
+                <div class="lg:col-span-2 flex flex-col">
+                    <div class="bg-white border border-gray-200 rounded-xl flex-grow flex flex-col overflow-hidden shadow-sm">
+                        <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex justify-between items-center">
+                            <h3 class="font-bold text-gray-800 text-sm uppercase">Recent Transactions</h3>
+                            <span id="loading-records" class="loader hidden w-4 h-4 border-2"></span>
+                        </div>
+                        <div class="overflow-y-auto flex-grow p-0 bg-white" style="max-height: 380px;">
+                            <ul id="expense-list" class="divide-y divide-gray-100">
+                                <!-- Records will be injected here -->
+                                <li class="p-8 text-center text-gray-400 text-sm" id="empty-state">
+                                    <i class="fa-solid fa-receipt text-3xl mb-2 text-gray-300 block"></i>
+                                    No records yet. Add one on the left.
+                                </li>
+                            </ul>
+                        </div>
+                        <!-- Simple total display -->
+                        <div class="bg-tropical-50 px-4 py-3 border-t border-tropical-100 flex justify-between items-center">
+                            <span class="font-bold text-tropical-900 text-sm">Total spent<span class="block text-[11px] font-normal text-tropical-700">≈ S$ <span id="grand-sgd">0.00</span> all-in (1 SGD = <span id="rate-used">19,500</span> VND)</span></span>
+                            <div class="text-right">
+                                <div class="font-bold text-tropical-700 text-lg">₫ <span id="total-vnd">0</span></div>
+                                <div class="font-medium text-tropical-600 text-sm">S$ <span id="total-sgd">0.00</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="pay-summary" class="mt-8 bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
+                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                    <h3 class="font-bold text-gray-800 text-sm uppercase"><i class="fa-solid fa-credit-card text-tropical-500 mr-2"></i>Summary by payment method</h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="text-xs uppercase text-gray-500 border-b border-gray-100">
+                                <th class="text-left px-4 py-2 font-semibold">Method</th>
+                                <th class="text-right px-4 py-2 font-semibold">SGD</th>
+                                <th class="text-right px-4 py-2 font-semibold">VND</th>
+                                <th class="text-right px-4 py-2 font-semibold">≈ SGD</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pay-summary-body" class="divide-y divide-gray-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-900 text-gray-400 py-8 text-center mt-auto border-t-4 border-tropical-600">
+        <div class="max-w-7xl mx-auto px-4">
+            <p class="font-serif mb-2 text-gray-300">Enjoy a wonderful family time in Da Nang.</p>
+            <p class="text-xs">Generated for Da Nang Family Escape | 2027</p>
+        </div>
+    </footer>
+
+    <!-- Toast UI -->
+    <div id="toast">Message</div>
+
+    <script>
+        if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+
+        // ---------- storage helpers (localStorage may be blocked) ----------
+        const LS = { url: 'danang_url', key: 'danang_key', pending: 'danang_pending', cache: 'danang_cache' };
+        const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+        const lsJSON = (k, fallback) => { try { return JSON.parse(lsGet(k)) || fallback; } catch (e) { return fallback; } };
+
+        // Your Apps Script web app URL (not secret by itself; the API key is still required)
+        const DEFAULT_URL = 'https://script.google.com/macros/s/AKfycbwaezJrfaIHUmNkAuAIX_44pV23wW5AyeVlHtlzkC4S2pParYSQxYMLMzURQrK8tY9f/exec';
+        let cfg = { url: lsGet(LS.url) || DEFAULT_URL, key: lsGet(LS.key) || '' };
+        let expenses = [];
+        let pending = lsJSON(LS.pending, []);
+        let rate = 19500; // overwritten by cell B3 in the sheet
+
+        const form = document.getElementById('expense-form');
+        const submitBtn = document.getElementById('submit-exp-btn');
+        const expenseList = document.getElementById('expense-list');
+        const emptyState = document.getElementById('empty-state');
+        const authStatusText = document.getElementById('auth-text');
+        const loadingRecords = document.getElementById('loading-records');
+        const syncBtn = document.getElementById('sync-btn');
+        const syncIcon = document.getElementById('sync-icon');
+        const keyPanel = document.getElementById('key-panel');
+        const walletBody = document.getElementById('wallet-body');
+        const cfgMsg = document.getElementById('cfg-msg');
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'show';
+            setTimeout(() => { toast.className = ''; }, 3500);
+        }
+        function esc(str) {
+            return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        }
+        function setStatus(kind, text) {
+            const icon = { ok: 'fa-circle-check', off: 'fa-circle-exclamation', bad: 'fa-triangle-exclamation' }[kind];
+            const color = { ok: 'bg-green-50 border-green-200 text-green-700', off: 'bg-amber-50 border-amber-200 text-amber-700', bad: 'bg-red-50 border-red-200 text-red-700' }[kind];
+            authStatusText.innerHTML = '<i class="fa-solid ' + icon + ' mr-1"></i> ' + text;
+            authStatusText.parentElement.className = 'text-xs font-medium px-2 py-1 rounded border flex items-center w-full sm:w-auto justify-center sm:justify-start ' + color;
+        }
+        function setBusy(b) {
+            loadingRecords.classList.toggle('hidden', !b);
+            syncIcon.classList.toggle('fa-spin', b);
+        }
+
+        // ---------- API ----------
+        async function api(action, payload) {
+            const res = await fetch(cfg.url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // keeps it a "simple" request (no CORS preflight)
+                body: JSON.stringify(Object.assign({ key: cfg.key, action: action }, payload || {}))
+            });
+            const json = await res.json();
+            if (!json.ok) throw new Error(json.error || 'Request failed');
+            return json.data;
+        }
+        const isNetworkError = err => err instanceof TypeError;
+
+        // ---------- connection panel ----------
+        function showConfig(msg) {
+            keyPanel.classList.remove('hidden');
+            walletBody.classList.add('hidden');
+            document.getElementById('pay-summary').classList.add('hidden');
+            document.getElementById('cfg-url').value = cfg.url;
+            document.getElementById('cfg-key').value = cfg.key;
+            cfgMsg.textContent = msg || '';
+            setStatus('bad', 'Not connected');
+            setBusy(false);
+        }
+        function hideConfig() {
+            keyPanel.classList.add('hidden');
+            walletBody.classList.remove('hidden');
+            document.getElementById('pay-summary').classList.remove('hidden');
+        }
+        document.getElementById('cfg-btn').addEventListener('click', () => showConfig(''));
+        document.getElementById('cfg-save').addEventListener('click', () => {
+            const url = document.getElementById('cfg-url').value.trim();
+            const key = document.getElementById('cfg-key').value.trim();
+            if (url.indexOf('https://script.google.com/') !== 0 || !key) {
+                cfgMsg.textContent = 'Enter the full /exec URL and your API key.';
+                return;
+            }
+            cfg = { url, key };
+            lsSet(LS.url, url); lsSet(LS.key, key);
+            hideConfig();
+            loadExpenses();
+        });
+
+        // ---------- load / sync ----------
+        async function loadExpenses() {
+            if (!cfg.url || !cfg.key) { showConfig(''); return false; }
+            hideConfig();
+            setBusy(true);
+            try {
+                await flushPending();
+                const res = await api('list');
+                expenses = res.items;
+                rate = res.rate || rate;
+                lsSet(LS.cache, JSON.stringify(res));
+                setStatus('ok', pending.length ? 'Connected · ' + pending.length + ' pending' : 'Connected to Sheet');
+                renderExpenses();
+                setBusy(false);
+                return true;
+            } catch (err) {
+                setBusy(false);
+                if (isNetworkError(err)) {
+                    const cached = lsJSON(LS.cache, null);
+                    if (cached) { expenses = cached.items; rate = cached.rate || rate; }
+                    setStatus('off', 'Offline · showing saved data');
+                    renderExpenses();
+                } else if (String(err.message).indexOf('Unauthorized') !== -1) {
+                    showConfig('Wrong API key. Check it matches API_KEY in Code.gs.');
+                } else {
+                    setStatus('bad', 'Sync failed');
+                    showToast('Failed to load: ' + err.message);
+                }
+                return false;
+            }
+        }
+
+        async function flushPending() {
+            while (pending.length) {
+                const item = pending[0];
+                await api('add', { expense: item }); // throws on failure -> stays queued
+                pending.shift();
+                lsSet(LS.pending, JSON.stringify(pending));
+            }
+        }
+
+        // ---------- add ----------
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const item = {
+                id: 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
+                phase: document.getElementById('exp-phase').value,
+                category: document.getElementById('exp-category').value,
+                desc: document.getElementById('exp-desc').value.trim(),
+                currency: document.getElementById('exp-currency').value,
+                amount: parseFloat(document.getElementById('exp-amount').value),
+                payment: document.getElementById('exp-payment').value
+            };
+            if (!item.desc || isNaN(item.amount) || item.amount <= 0) { showToast('Invalid description or amount'); return; }
+            if (!cfg.url || !cfg.key) { showConfig('Connect first.'); return; }
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loader border-t-white w-4 h-4 mr-2 border-2"></span> Saving...';
+            try {
+                const saved = await api('add', { expense: item });
+                expenses.unshift(saved);
+                lsSet(LS.cache, JSON.stringify({ items: expenses, rate: rate }));
+                form.reset();
+                renderExpenses();
+                showToast('Saved to tab "' + saved.sheet + '", row ' + saved.row);
+            } catch (err) {
+                if (isNetworkError(err)) {
+                    pending.unshift(item);
+                    lsSet(LS.pending, JSON.stringify(pending));
+                    form.reset();
+                    renderExpenses();
+                    setStatus('off', 'Offline · ' + pending.length + ' pending');
+                    showToast('Offline: saved on this phone, will sync later');
+                } else if (String(err.message).indexOf('Unauthorized') !== -1) {
+                    showConfig('Wrong API key.');
+                } else {
+                    showToast('Failed to save: ' + err.message);
+                }
+            }
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Add Record';
+        });
+
+        // ---------- delete ----------
+        window.deleteExpense = async (id) => {
+            if (!confirm('Delete this record?')) return;
+            const pi = pending.findIndex(p => p.id === id);
+            if (pi !== -1) {
+                pending.splice(pi, 1);
+                lsSet(LS.pending, JSON.stringify(pending));
+                renderExpenses();
+                showToast('Removed pending record');
+                return;
+            }
+            showToast('Deleting...');
+            try {
+                await api('delete', { id: id });
+                expenses = expenses.filter(x => x.id !== id);
+                lsSet(LS.cache, JSON.stringify({ items: expenses, rate: rate }));
+                renderExpenses();
+                showToast('Deleted from sheet');
+            } catch (err) {
+                showToast(isNetworkError(err) ? 'You are offline. Delete needs internet.' : 'Delete failed: ' + err.message);
+            }
+        };
+
+        // ---------- render ----------
+        function formatCurrency(amount, currency) {
+            if (currency === 'VND') return new Intl.NumberFormat('vi-VN').format(Math.round(amount));
+            return Number(amount).toFixed(2);
+        }
+        function allItems() {
+            return pending.map(p => Object.assign({}, p, { pending: true })).concat(expenses);
+        }
+
+        function renderExpenses() {
+            expenseList.innerHTML = '';
+            const list = allItems();
+            let totalVND = 0, totalSGD = 0;
+
+            if (list.length === 0) {
+                expenseList.appendChild(emptyState);
+            } else {
+                const iconMap = {
+                    'Hotel': '<i class="fa-solid fa-hotel text-purple-500 bg-purple-100 p-2 rounded-full"></i>',
+                    'Food & Dining': '<i class="fa-solid fa-utensils text-orange-500 bg-orange-100 p-2 rounded-full"></i>',
+                    'Transport': '<i class="fa-solid fa-car text-blue-500 bg-blue-100 p-2 rounded-full"></i>',
+                    'Shopping': '<i class="fa-solid fa-bag-shopping text-pink-500 bg-pink-100 p-2 rounded-full"></i>',
+                    'Activities': '<i class="fa-solid fa-ticket text-tropical-500 bg-tropical-100 p-2 rounded-full"></i>',
+                    'Other': '<i class="fa-solid fa-ellipsis text-gray-500 bg-gray-100 p-2 rounded-full"></i>'
+                };
+                list.forEach(exp => {
+                    if (exp.currency === 'SGD') totalSGD += exp.amount; else totalVND += exp.amount;
+                    const icon = iconMap[exp.category] || (/^hotel/i.test(exp.category) ? iconMap['Hotel'] : iconMap['Other']);
+                    const li = document.createElement('li');
+                    li.className = 'px-4 py-3 hover:bg-gray-50 transition-colors flex justify-between items-center group';
+                    li.innerHTML = `
+                        <div class="flex items-center flex-grow">
+                            <div class="mr-4 text-center">${icon}</div>
+                            <div>
+                                <p class="text-sm font-semibold text-gray-800">${esc(exp.desc)}</p>
+                                <div class="flex flex-wrap gap-x-2 text-xs text-gray-500 mt-0.5">
+                                    <span class="bg-gray-100 border border-gray-200 px-1.5 py-0.5 rounded text-[10px] uppercase">${esc(exp.phase)}</span>
+                                    <span>${esc(exp.category)}</span>
+                                    ${exp.payment ? '<span>· ' + esc(exp.payment) + '</span>' : ''}
+                                    ${exp.pending ? '<span class="bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[10px] uppercase">Pending sync</span>' : ''}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="text-right">
+                                <span class="block font-bold text-gray-900">${exp.currency === 'SGD' ? 'S$ ' : '₫ '}${formatCurrency(exp.amount, exp.currency)}</span>
+                            </div>
+                            <button onclick="deleteExpense('${esc(exp.id)}')" class="text-gray-300 hover:text-red-500 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity p-2" title="Delete">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>`;
+                    expenseList.appendChild(li);
+                });
+            }
+
+            const grandSGD = totalSGD + totalVND / rate;
+            document.getElementById('total-vnd').textContent = formatCurrency(totalVND, 'VND');
+            document.getElementById('total-sgd').textContent = totalSGD.toFixed(2);
+            document.getElementById('grand-sgd').textContent = grandSGD.toFixed(2);
+            document.getElementById('rate-used').textContent = new Intl.NumberFormat('en-US').format(rate);
+            renderPaymentSummary(list);
+        }
+
+        function renderPaymentSummary(list) {
+            const map = {};
+            list.forEach(exp => {
+                const key = exp.payment || 'Not set';
+                if (!map[key]) map[key] = { sgd: 0, vnd: 0 };
+                if (exp.currency === 'SGD') map[key].sgd += exp.amount; else map[key].vnd += exp.amount;
+            });
+            const rows = Object.keys(map).map(k => ({ name: k, sgd: map[k].sgd, vnd: map[k].vnd, eq: map[k].sgd + map[k].vnd / rate }))
+                .sort((a, b) => b.eq - a.eq);
+            const body = document.getElementById('pay-summary-body');
+            if (!rows.length) {
+                body.innerHTML = '<tr><td colspan="4" class="px-4 py-4 text-center text-gray-400">No records yet.</td></tr>';
+                return;
+            }
+            body.innerHTML = rows.map(r => `
+                <tr>
+                    <td class="px-4 py-2 font-medium text-gray-800">${esc(r.name)}</td>
+                    <td class="px-4 py-2 text-right">${r.sgd ? 'S$ ' + r.sgd.toFixed(2) : '-'}</td>
+                    <td class="px-4 py-2 text-right">${r.vnd ? '₫ ' + formatCurrency(r.vnd, 'VND') : '-'}</td>
+                    <td class="px-4 py-2 text-right font-bold text-tropical-700">S$ ${r.eq.toFixed(2)}</td>
+                </tr>`).join('');
+        }
+
+        // ---------- wiring ----------
+        syncBtn.addEventListener('click', async () => {
+            syncBtn.disabled = true;
+            const ok = await loadExpenses();
+            syncBtn.disabled = false;
+            if (ok) showToast('Synced successfully');
+        });
+        window.addEventListener('online', loadExpenses);
+        document.addEventListener('DOMContentLoaded', () => {
+            const cached = lsJSON(LS.cache, null);
+            if (cached) { expenses = cached.items; rate = cached.rate || rate; renderExpenses(); }
+            loadExpenses();
+        });
+    </script>
 </body>
 </html>
